@@ -1,0 +1,58 @@
+<view class="siteContainer">
+  <!-- 场地图片 -->
+  <image id="siteImg" class="siteImg" src="{{siteImg.src}}" mode="aspectFit" style="width:{{siteImg.width}}px;height:{{siteImg.height}}px;"></image>
+</view>
+<!-- 操作区域 -->
+<view class="contentWarp" catchtap="hideControls">
+  <block wx:for="{{carList}}" wx:key="id">
+    <!-- 圆心坐标  -->
+    <!-- <text style="position:absolute;top:{{item.y}}px;left:{{item.x}}px;width:2rpx;height:2rpx;background-color:red;z-index:500"></text> -->
+    <view class="touchWrap" style="transform:scale({{isScale ? item.scale : syncScale}});top:{{item.top}}px;left:{{item.left}}px;z-index:{{item.active?100:1}};">
+      <view class="imgWrap {{item.active? 'touchActive':''}}" style="transform:rotate({{item.angle}}deg);">
+        <image src="{{item.src}}" data-id="{{item.id}}" style="width:{{item.width}}px;height:{{item.height}}px;" bindtouchstart="WraptouchStart" bindtouchmove="WraptouchMove" bindtouchend="WraptouchEnd"></image>
+        <image class="x" src="../../images/x.png" style="transform:scale({{item.oScale}});transform-origin:center;" data-id="{{item.id}}" catchtap="deleteCar"></image>
+        <image class="o" src="../../images/o.png" style="transform:scale({{item.oScale}});transform-origin:center;" data-id="{{item.id}}" bindtouchstart="oTouchStart" bindtouchmove="oTouchMove" bindtouchend="WraptouchEnd"></image>
+      </view>
+    </view>
+  </block>
+  <!-- 全局控件 -->
+  <view class="globalControl">
+    <!-- 方向控制 -->
+    <view class="directionControl">
+      <image src="/images/control_up.png" data-action="up"
+      catchtouchstart="carActionStart" catchtouchend="carActionEnd"></image>
+      <image src="/images/control_down.png" data-action="down"
+      catchtouchstart="carActionStart" catchtouchend="carActionEnd"></image>
+      <image src="/images/control_left.png" data-action="left"
+      catchtouchstart="carActionStart" catchtouchend="carActionEnd"></image>
+      <image src="/images/control_right.png" data-action="right"
+      catchtouchstart="carActionStart" catchtouchend="carActionEnd"></image>
+      <image src="/images/control_reset.png" catchtap="carReset"></image>
+    </view>
+    <!-- 角度控制 -->
+    <view class="angleControl">
+      <image src="/images/control_rotate_cw.png" data-action="rotate_cw"
+      catchtouchstart="carActionStart" catchtouchend="carActionEnd"></image>
+      <image src="/images/control_rotate_ccw.png" data-action="rotate_ccw"
+      catchtouchstart="carActionStart" catchtouchend="carActionEnd"></image>
+    </view>
+    <!-- 车辆添加 -->
+    <view class="carAdd">
+      <image src="/images/control_add.png" catchtap="carAdd"></image>
+    </view>
+    <!-- 预览按钮 -->
+    <button class="previewBtn" catchtap="openPreviewContainer">预览</button>
+  </view>
+</view>
+<!-- 图片预览 -->
+<view class="previewContainer" hidden="{{!showCanvas}}">
+  <view class="previewTitle">合成图片预览</view>
+  <image class="resImg" bindlongtap="saveImg" src="{{previewImg}}" mode="widthFix"></image>
+  <view class="btn_view">
+    <button bindtap="saveImg">保存到手机</button>
+    <button bindtap="saveSceneData">保存记录</button>
+    <button bindtap="closePreviewContainer">关闭</button>
+  </view>
+</view>
+
+<canvas class="maskCanvas" canvas-id="maskCanvas" style="width:{{canvasWidth}}px;height:{{canvasHeight}}px;"></canvas>

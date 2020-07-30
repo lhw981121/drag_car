@@ -1,0 +1,240 @@
+.siteContainer {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.siteImg {
+  vertical-align: middle;
+}
+/* 操作区域 */
+.contentWarp {
+  position: absolute;
+  width: 100%;
+  /* height: 100%; */
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}
+.touchWrap {
+  transform-origin: center;
+  position: absolute;
+  z-index: 100;
+}
+.imgWrap {
+  box-sizing: border-box;
+  width: 100%;
+  transform-origin: center;
+  float: left;
+}
+.imgWrap image {
+  float: left;
+}
+/* 触摸选中 */
+.touchActive {
+  box-shadow: 0 0 2rpx #333;
+  border-radius: 10rpx;
+  border: none;
+  /* border: 2rpx #999 dashed !important; */
+  z-index: 400;
+}
+.touchActive .x {
+  display: block;
+}
+.touchActive .o {
+  display: block;
+}
+/* 图片控件 */
+.x {
+  position: absolute;
+  top: -25rpx;
+  left: -25rpx;
+  z-index: 500;
+  display: none;
+  width: 50rpx;
+  height: 50rpx;
+  overflow: hidden;
+}
+.o {
+  position: absolute;
+  bottom: -25rpx;
+  right: -25rpx;
+  width: 50rpx;
+  height: 50rpx;
+  text-align: center;
+  display: none;
+  overflow: hidden;
+}
+/* 全局控件 */
+.globalControl {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+/* 方向控件 */
+.directionControl {
+  position: absolute;
+  z-index: 101;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  width: 300rpx;
+  height: 300rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 33.33%);
+  grid-template-rows: repeat(3, 33.33%);
+  grid-template-areas: '.     up      .'
+                       'left  reset   right'
+                       '.     down    .';
+}
+.directionControl image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.directionControl image:active {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+}
+.directionControl image:nth-child(1){
+  grid-area: up;
+}
+.directionControl image:nth-child(2){
+  grid-area: down;
+}
+.directionControl image:nth-child(3){
+  grid-area: left;
+}
+.directionControl image:nth-child(4){
+  grid-area: right;
+}
+.directionControl image:nth-child(5){
+  grid-area: reset;
+  place-self: center;
+  border-radius: 25%;
+  width: 50%;
+  height: 50%;
+}
+/* 角度控件 */
+.angleControl {
+  position: absolute;
+  z-index: 101;
+  right: 340rpx;
+  bottom: 20rpx;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 25%;
+  width: 222rpx;
+  height: 100rpx;
+  display: grid;
+  grid-template-columns: repeat(3, 45% 10% 45%);
+  grid-template-rows: repeat(1, 100%);
+  grid-template-areas: 'cw . ccw';
+}
+.angleControl image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.angleControl image:active {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+}
+.angleControl image:nth-child(1){
+  grid-area: cw;
+  border-bottom-right-radius: 0;
+}
+.angleControl image:nth-child(2){
+  grid-area: ccw;
+  border-bottom-left-radius: 0;
+}
+/* 车辆添加 */
+.carAdd {
+  position: absolute;
+  z-index: 101;
+  top: 0;
+  right: 0;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+}
+.carAdd image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.carAdd:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+/* 预览按钮 */
+.previewBtn {
+  position: absolute;
+  z-index: 101;
+  left: 0;
+  bottom: 0;
+  /* width: 100%; */
+  background-color: #FEC627;
+  border-radius: 0;
+  border-top-right-radius: 36rpx;
+  font-size: 36rpx;
+  font-weight: normal;
+}
+.previewBtn:active {
+  color: #666;
+  background-color: #FEB627;
+}
+.previewBtn::after {
+  border: none;
+}
+
+/* 合成图片预览 */
+.previewContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  text-align: center;
+}
+.previewTitle {
+  color: #42A5F5;
+  font-size: 32rpx;
+  padding: 20rpx;
+  letter-spacing: 6rpx;
+}
+.resImg {
+  width: 75%;
+  margin-top: 10rpx;
+}
+.btn_view {
+  display: flex;
+  padding: 20rpx;
+  justify-content: space-around;
+}
+.btn_view button {
+  /* width: 300rpx; */
+  flex: 1 0;
+  margin: 0 10rpx;
+  font-size: 30rpx;
+  color: #42A5F5;
+  border: 3rpx solid #42A5F5;
+  border-radius: 20rpx;
+  background-color: #fff;
+  line-height: 90rpx;
+}
+.btn_view button:active {
+  color: #0085f2;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* 画布 */
+.maskCanvas {
+  position: absolute;
+  left: -200%;
+  top: 100%;
+}
