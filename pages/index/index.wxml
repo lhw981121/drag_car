@@ -7,7 +7,7 @@
   <block wx:for="{{carList}}" wx:key="id">
     <!-- 圆心坐标  -->
     <!-- <text style="position:absolute;top:{{item.y}}px;left:{{item.x}}px;width:2rpx;height:2rpx;background-color:red;z-index:500"></text> -->
-    <view class="touchWrap" style="transform:scale({{isScale ? item.scale : syncScale}});top:{{item.top}}px;left:{{item.left}}px;z-index:{{item.active?100:1}};">
+    <view class="touchWrap" style="transform:scale({{item.scale}});top:{{item.top}}px;left:{{item.left}}px;z-index:{{item.active?100:1}};">
       <view class="imgWrap {{item.active? 'touchActive':''}}" style="transform:rotate({{item.angle}}deg);">
         <image src="{{item.src}}" data-id="{{item.id}}" style="width:{{item.width}}px;height:{{item.height}}px;" bindtouchstart="WraptouchStart" bindtouchmove="WraptouchMove" bindtouchend="WraptouchEnd"></image>
         <image class="x" src="../../images/x.png" style="transform:scale({{item.oScale}});transform-origin:center;" data-id="{{item.id}}" catchtap="deleteCar"></image>
@@ -39,6 +39,10 @@
     <!-- 车辆添加 -->
     <view class="carAdd">
       <image src="/images/control_add.png" catchtap="carAdd"></image>
+    </view>
+    <!-- 缩放控制 -->
+    <view class="scaleControl">
+      <image src="/images/control_scale.png" catchtap="isBanScale" style="opacity:{{isScale ? 1 : 0.1}}"></image>
     </view>
     <!-- 预览按钮 -->
     <button class="previewBtn" catchtap="openPreviewContainer">预览</button>

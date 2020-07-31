@@ -429,6 +429,12 @@ Page({
     }
     this.initCarImg(carRawData);
   },
+  // 是否禁用缩放
+  isBanScale() {
+    this.setData({
+      isScale: !this.data.isScale
+    })
+  },
   // 删除图片
   deleteCar: function(e) {
     let newList = [];
