@@ -5,10 +5,11 @@ carId = 0;    // 图片id
 const 
 carImgSrc = '/images/car.png',        // 车辆图片路径
 SCALE_MAX = 1, SCALE_MIN = 0.5,       // 缩放比例范围
+MARGIN_X = 0, MARGIN_Y = 110,           // 可移动边界偏移量
 CAR_SPEED = 1.0,                      // 车辆控制速度指数（rpx）
 CAR_SPL = 30,                         // 车辆控制灵敏度（ms）
 CAR_MAX_COUNT = 3,                    // 最大车辆个数
-canvasPre = 1,                        // 展示的canvas占mask的百分比
+canvasPre = 1,                        // 展示的canvas占mask的百分比（用于设置图片质量）
 maskCanvas = wx.createCanvasContext('maskCanvas');
 const carRawData = {
   top: 0,
@@ -26,25 +27,6 @@ Page({
     syncScale: 1,   // 同步缩放比例（同步场地与车辆图片的缩放）
     isScale: true,  // 是否支持缩放
     sceneData: {},  // 场景数据
-    sceneDataTest: {
-      site: 'stop',
-      carData: [{
-        top: 500,
-        left: 100,
-        angle: 0,
-        scale: 1,
-      },{
-        top: 100,
-        left: 300,
-        angle: 180,
-        scale: 1,
-      },{
-        top: 50,
-        left: 70,
-        angle: 90,
-        scale: 1,
-      }]
-    }
   },
   // 页面初始化
   onLoad: function(options) {
@@ -52,8 +34,15 @@ Page({
       title: '正在初始化',
       mask: true
     })
-    let sceneData = '{"site":"storage","carData":[{"top":184.09413146972656,"left":77.83524703979492,"angle":-269.3068839085009,"scale":0.7863229469464958},{"top":-34.400299072265625,"left":277.4349060058594,"angle":359.93074208533653,"scale":0.6880014912668356},{"top":0,"left":0,"angle":0,"scale":0.9833729216152018}]}'
+
+    // 初始化默认场地数据
+    let site = 'storage'
+    // this.data.sceneData.site = site
+
+    // 读取场景json数据还原场地
+    let sceneData = '{"site":"storage","carData":[{"relative_x":89.91864235616393,"relative_y":-34.88340781391527,"angle":0,"scale":1},{"relative_x":-70.19078868026463,"relative_y":-293.8118405420424,"angle":0.7172056537179685,"scale":0.8613354011811988},{"relative_x":-40.37727655538758,"relative_y":244.34773873591774,"angle":-243.2561399086644,"scale":0.5084541062801933}]}'
     this.data.sceneData = JSON.parse(sceneData)
+    
     // 获取系统信息计算画布宽高
     wx.getSystemInfo({
       success: sysData => {
@@ -66,8 +55,12 @@ Page({
     });
     this.initSite(this.data.siteImgSrcObj[this.data.sceneData.site])
     setTimeout(() => {
-      for(let i = 0; i < this.data.sceneData.carData.length; i++){
-        this.initCarImg(this.data.sceneData.carData[i]);
+      if(!this.data.sceneData.carData || this.data.sceneData.carData.length == 0){
+        this.initCarImg()
+      }else{
+        for(let i = 0; i < this.data.sceneData.carData.length; i++){
+          this.initCarImg(this.data.sceneData.carData[i]);
+        }
       }
       wx.hideLoading()
     }, 200)
@@ -106,11 +99,25 @@ Page({
           siteImg: data,
           syncScale: scale
         })
+        // 计算场地图片的最终位置
+        setTimeout(() => {
+          wx.createSelectorQuery().select('#siteImg').boundingClientRect((rect) => {
+            this.setData({
+              'siteImg.left': rect.left,
+              'siteImg.top': rect.top,
+              'siteImg.x': rect.left + data.width / 2,
+              'siteImg.y': rect.top + data.height / 2
+            })
+          }).exec()
+        }, 150)
       }
     })
   },
   // 初始化图片数据
   initCarImg(carData) {
+    // 初始化标志，判断是否读取已有车辆数据
+    let flag = Boolean(carData)
+    let siteImg = this.data.siteImg
     let data = {}
     wx.getImageInfo({
       src: carImgSrc,
@@ -120,16 +127,17 @@ Page({
         data.height = res.height; //高度
         data.src = carImgSrc; //地址
         data.id = carId++; //id
-        data.top = carData.top || 0; //top定位
-        data.left = carData.left || 0; //left定位
         // 图片中心坐标
-        data.x = data.left + data.width / 2;
-        data.y = data.top + data.height / 2;
+        data.x =  flag ? (siteImg.x + carData.relative_x * siteImg.scale) : (data.width / 2)
+        data.y =  flag ? (siteImg.y + carData.relative_y * siteImg.scale) : (data.height / 2)
+        // 定位坐标
+        data.left = flag ? (data.x - data.width / 2) : 0; //left定位
+        data.top = flag ? (data.y - data.height / 2) : 0; //top定位
         // data.scale = 1; //scale缩放
-        data.scale = carData.scale || this.data.syncScale
+        data.scale = flag ? carData.scale * this.data.syncScale : this.data.syncScale
         // data.oScale = 1; //控件缩放
         data.oScale = 1 / data.scale
-        data.angle = carData.angle || 0; //旋转角度
+        data.angle = flag ? carData.angle : 0; //旋转角度
         data.active = false; //选中状态
         // console.log(data)
         cars[cars.length] = data;
@@ -179,31 +187,36 @@ Page({
       carList: cars
     })
   },
-  // 移动到边界阻止(参数1：x轴移动的距离；参数2：y轴移动的距离)
+  // 移动到边界阻止(参数1：x轴移动的距离；参数2：y轴移动的距离)，如果图片到达边界则回退移动状态（即阻止移动）
   boundaryStop(range_x, range_y) {
-    // 如果图片到达边界则回退移动状态（即阻止移动）
+    // 计算宽高受缩放所致的差值
     let diff_width =  cars[index].width * (1 - cars[index].scale) / 2
     let diff_height =  cars[index].height * (1 - cars[index].scale) / 2
-    if(cars[index].left + diff_width < 0 || cars[index].left + cars[index].width - diff_width > this.sysData.windowWidth){
+    // 记录可移动边界
+    let margin_left = 0 - MARGIN_X * cars[index].scale
+    let margin_right = this.sysData.windowWidth + MARGIN_X * cars[index].scale
+    let margin_up = 0 - MARGIN_Y * cars[index].scale
+    let margin_down = this.sysData.windowHeight + MARGIN_Y * cars[index].scale
+    if(cars[index].left + diff_width < margin_left || cars[index].left + cars[index].width - diff_width > margin_right){
       cars[index].left -= range_x;
       cars[index].x -= range_x;
-      // 横轴超出移动到边缘
-      if(cars[index].left + diff_width < 0){
+      // 横轴超出，强制移动到边缘
+      if(cars[index].left + diff_width < margin_left){
         cars[index].left = -diff_width
         cars[index].x = cars[index].width / 2 - diff_width 
-      }else if(cars[index].left + cars[index].width - diff_width > this.sysData.windowWidth){
+      }else if(cars[index].left + cars[index].width - diff_width > margin_right){
         cars[index].left = this.sysData.windowWidth - (cars[index].width - diff_width)
         cars[index].x = this.sysData.windowWidth - (cars[index].width / 2 - diff_width) 
       }
     }
-    if(cars[index].top + diff_height < 0 || cars[index].top + cars[index].height - diff_height > this.sysData.windowHeight){
+    if(cars[index].top + diff_height < margin_up || cars[index].top + cars[index].height - diff_height > margin_down){
       cars[index].top -= range_y;
       cars[index].y -= range_y;
-      // 纵轴超出移动到边缘
-      if(cars[index].top + diff_height < 0){
+      // 纵轴超出，强制移动到边缘
+      if(cars[index].top + diff_height < margin_up){
         cars[index].top = -diff_height
         cars[index].y = cars[index].height / 2 - diff_height 
-      }else if(cars[index].top + cars[index].height - diff_height > this.sysData.windowHeight){
+      }else if(cars[index].top + cars[index].height - diff_height > margin_down){
         cars[index].top = this.sysData.windowHeight - (cars[index].height - diff_height)
         cars[index].y = this.sysData.windowHeight - (cars[index].height / 2 - diff_height) 
       }
@@ -313,8 +326,8 @@ Page({
     cars[index].left = 0;
     cars[index].x = cars[index].left + cars[index].width / 2;
     cars[index].y = cars[index].top + cars[index].height / 2;
-    cars[index].scale = this.data.syncScale
-    cars[index].oScale = 1 / this.data.syncScale
+    cars[index].scale = this.data.syncScale < SCALE_MIN ? 0.5 : this.data.syncScale
+    cars[index].oScale = 1 / cars[index].scale
     cars[index].angle = 0; //旋转角度
     this.setData({
       carList: cars
@@ -427,7 +440,18 @@ Page({
       })
       return
     }
-    this.initCarImg(carRawData);
+    this.initCarImg();
+  },
+  // 更换场地地图
+  changeSite() {
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['original', 'compressed'],
+      sourceType: ['album'],
+      success: res => {
+        this.initSite(res.tempFilePaths[0])
+      }
+    })
   },
   // 是否禁用缩放
   isBanScale() {
@@ -455,14 +479,7 @@ Page({
   },
   // 预览合成图片
   openPreviewContainer () {
-    wx.createSelectorQuery().select('#siteImg').boundingClientRect((rect) => {
-      this.data.siteImg.left = rect.left   // 节点的左边界坐标
-      this.data.siteImg.top = rect.top     // 节点的上边界坐标
-    }).exec()
-    // 查询位置回调函数表现为异步，因此等待获取坐标，延迟画图
-    setTimeout(() => {
-      this.synthesis()
-    }, 200)
+    this.synthesis()
     wx.showLoading({
       title: '正在合成图片',
       mask: true
@@ -476,7 +493,6 @@ Page({
   },
   // 合成图片
   synthesis() {
-    console.log('合成图片')
     maskCanvas.save();
     maskCanvas.beginPath();
     // 画背景
@@ -486,10 +502,10 @@ Page({
     maskCanvas.stroke();
 
     // 画场地图片
-    let left = this.data.siteImg.left
-    let top = this.data.siteImg.top
-    let width = this.data.siteImg.width
-    let height = this.data.siteImg.height
+    let left = this.data.siteImg.left * canvasPre
+    let top = this.data.siteImg.top * canvasPre
+    let width = this.data.siteImg.width * canvasPre
+    let height = this.data.siteImg.height * canvasPre
     maskCanvas.drawImage(this.data.siteImg.src, left, top, width, height);
     /*
      * num为canvas内背景图占canvas的百分比，若全背景num =1
@@ -573,10 +589,10 @@ Page({
     sceneData.carData = []
     for(let i = 0; i < this.data.carList.length; i++){
       sceneData.carData[i] = {}
-      sceneData.carData[i].top = this.data.carList[i].top
-      sceneData.carData[i].left = this.data.carList[i].left
+      sceneData.carData[i].relative_x = (this.data.carList[i].x - this.data.siteImg.x) / this.data.syncScale
+      sceneData.carData[i].relative_y = (this.data.carList[i].y - this.data.siteImg.y) / this.data.syncScale
       sceneData.carData[i].angle = this.data.carList[i].angle
-      sceneData.carData[i].scale = this.data.carList[i].scale
+      sceneData.carData[i].scale = this.data.carList[i].scale / this.data.syncScale
     }
     console.log(JSON.stringify(sceneData))
   }
