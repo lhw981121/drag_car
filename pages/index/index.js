@@ -18,6 +18,7 @@ const carRawData = {
 }
 Page({
   data: {
+    siteCenter: false,
     siteImgSrcObj: {
       "stop": "/images/stop.png",
       "storage": "/images/storage.png",
@@ -30,8 +31,9 @@ Page({
   },
   // 页面初始化
   onLoad: function(options) {
+    index = 0, cars = [], carId = 0;
     wx.showLoading({
-      title: '正在初始化',
+      title: '正在初始化场景',
       mask: true
     })
 
@@ -40,7 +42,7 @@ Page({
     // this.data.sceneData.site = site
 
     // 读取场景json数据还原场地
-    let sceneData = '{"site":"storage","carData":[{"relative_x":89.91864235616393,"relative_y":-34.88340781391527,"angle":0,"scale":1},{"relative_x":-70.19078868026463,"relative_y":-293.8118405420424,"angle":0.7172056537179685,"scale":0.8613354011811988},{"relative_x":-40.37727655538758,"relative_y":244.34773873591774,"angle":-243.2561399086644,"scale":0.5084541062801933}]}'
+    let sceneData = '{"site":"storage","carData":[{"relative_x":83.07547044984385,"relative_y":-104.37072569621358,"angle":-128.91910820448214,"scale":0.5084541062801933},{"relative_x":-92.66605472176693,"relative_y":-293.1527763716841,"angle":-258.64512302344957,"scale":1.0169082125603865},{"relative_x":50.41117409112805,"relative_y":388.3040506556415,"angle":0.541878858323031,"scale":0.5084541062801933}]}'
     this.data.sceneData = JSON.parse(sceneData)
     
     // 获取系统信息计算画布宽高
@@ -63,7 +65,7 @@ Page({
         }
       }
       wx.hideLoading()
-    }, 200)
+    }, 1000)
   },
   // 初始化场地数据
   initSite(imgSrc) {
@@ -100,16 +102,14 @@ Page({
           syncScale: scale
         })
         // 计算场地图片的最终位置
-        setTimeout(() => {
-          wx.createSelectorQuery().select('#siteImg').boundingClientRect((rect) => {
-            this.setData({
-              'siteImg.left': rect.left,
-              'siteImg.top': rect.top,
-              'siteImg.x': rect.left + data.width / 2,
-              'siteImg.y': rect.top + data.height / 2
-            })
-          }).exec()
-        }, 150)
+        wx.createSelectorQuery().select('#siteImg').boundingClientRect((rect) => {
+          this.setData({
+            'siteImg.left': rect.left,
+            'siteImg.top': rect.top,
+            'siteImg.x': rect.left + data.width / 2,
+            'siteImg.y': rect.top + data.height / 2
+          })
+        }).exec()
       }
     })
   },

@@ -1,4 +1,4 @@
-<view class="siteContainer">
+<view class="siteContainer" style="align-items:{{siteCenter ? 'center' : 'flex-start'}}">
   <!-- 场地图片 -->
   <image id="siteImg" class="siteImg" src="{{siteImg.src}}" mode="aspectFit" style="width:{{siteImg.width}}px;height:{{siteImg.height}}px;"></image>
   <!-- <text style="position:absolute;top:{{siteImg.y}}px;left:{{siteImg.x}}px;width:4rpx;height:4rpx;background-color:red;z-index:500"></text> -->
