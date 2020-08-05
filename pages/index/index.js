@@ -42,7 +42,7 @@ Page({
     // this.data.sceneData.site = site
 
     // 读取场景json数据还原场地
-    let sceneData = '{"site":"storage","carData":[{"relative_x":83.07547044984385,"relative_y":-104.37072569621358,"angle":-128.91910820448214,"scale":0.5084541062801933},{"relative_x":-92.66605472176693,"relative_y":-293.1527763716841,"angle":-258.64512302344957,"scale":1.0169082125603865},{"relative_x":50.41117409112805,"relative_y":388.3040506556415,"angle":0.541878858323031,"scale":0.5084541062801933}]}'
+    let sceneData = '{"site":"storage","carData":[{"relative_x":83.07547044984386,"relative_y":-104.37072569621358,"angle":-128.91910820448214,"scale":0.5084541062801933},{"relative_x":-49.80685009301512,"relative_y":-210.24224292144842,"angle":-309.69883819822115,"scale":0.8103973684838132},{"relative_x":-79.88977775287618,"relative_y":7.56608816954158,"angle":-269.26458419124504,"scale":0.7198254404087311}]}'
     this.data.sceneData = JSON.parse(sceneData)
     
     // 获取系统信息计算画布宽高

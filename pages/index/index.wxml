@@ -41,6 +41,10 @@
     <view class="carAdd">
       <image src="/images/control_add.png" catchtap="carAdd"></image>
     </view>
+    <!-- 场地更换 -->
+    <view class="changeSite">
+      <image src="/images/control_change_site.png" catchtap="changeSite"></image>
+    </view>
     <!-- 缩放控制 -->
     <view class="scaleControl">
       <image src="/images/control_scale.png" catchtap="isBanScale" style="opacity:{{isScale ? 1 : 0.1}}"></image>
